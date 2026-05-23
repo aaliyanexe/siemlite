@@ -11,15 +11,17 @@ export default function ThreatTypes() {
 
   return (
     <PageWrapper title="Threat Types">
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {types.map((t) => (
           <div
             key={t.threat_type_id}
-            className={`bg-soc-panel border rounded-xl p-4 ${t.is_active ? 'border-soc-border' : 'border-slate-600 opacity-60'}`}
+            className={`surface-card p-4 ${!t.is_active ? 'opacity-50' : ''}`}
           >
-            <h3 className="text-white font-medium">{t.name}</h3>
-            <p className="text-slate-400 text-xs mt-1">{t.category} · Default: {t.severity_default}</p>
-            <p className="text-slate-500 text-sm mt-2 line-clamp-2">{t.description}</p>
+            <h3 className="card-title">{t.name}</h3>
+            <p className="text-secondary mt-2">
+              {t.category} · Default: {t.severity_default}
+            </p>
+            <p className="text-gray-400 text-sm mt-3 line-clamp-2">{t.description}</p>
           </div>
         ))}
       </div>

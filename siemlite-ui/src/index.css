@@ -1,16 +1,183 @@
 @import 'tailwindcss';
+@config '../tailwind.config.js';
 
-@theme {
-  --color-soc-bg: #0f1419;
-  --color-soc-panel: #1a2332;
-  --color-soc-border: #2d3a4f;
-  --color-soc-accent: #3b82f6;
+/* ─── Font faces ─────────────────────────────────────────── */
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Book.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/fonts/PPNeueMontreal-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal Mono';
+  src: url('/fonts/PPNeueMontrealMono-Book.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal Mono';
+  src: url('/fonts/PPNeueMontrealMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Neue Montreal Mono';
+  src: url('/fonts/PPNeueMontrealMono-RegularItalic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ─── CSS variables ──────────────────────────────────────── */
+:root {
+  --bg-base: #0d0a08;
+  --bg-surface: #16120c;
+  --bg-elevated: #1c1610;
+  --bg-overlay: #231c14;
+
+  --border-subtle: #2e2418;
+  --border-default: #3d3020;
+  --border-strong: #5c4a32;
+  --border-focus: #ff4500;
+
+  --text-primary: #f5f0e8;
+  --text-secondary: #a89080;
+  --text-tertiary: #5c4a32;
+  --text-disabled: #3d3020;
+
+  --accent: #ff4500;
+  --accent-hover: #ff6a30;
+  --accent-pressed: #c03800;
+
+  --sidebar-width: 240px;
+  --content-pad: 32px;
+}
+
+/* ─── Base reset ─────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
   min-height: 100vh;
-  background: var(--color-soc-bg);
-  color: #e2e8f0;
-  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'PP Neue Montreal', system-ui, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mono for data elements */
+.font-data {
+  font-family: 'PP Neue Montreal Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+/* ─── Typography utilities ───────────────────────────────── */
+@layer components {
+  .page-title {
+    @apply text-xl font-bold text-gray-50 tracking-tight;
+  }
+
+  .section-heading {
+    @apply text-lg font-medium text-gray-100;
+  }
+
+  .card-title {
+    @apply text-md font-medium text-gray-100;
+  }
+
+  .body-text {
+    @apply text-base font-book text-gray-200;
+  }
+
+  .text-secondary {
+    @apply text-sm font-book text-gray-300;
+  }
+
+  .label-caps {
+    @apply text-xs font-medium text-gray-400 uppercase tracking-widest;
+  }
+
+  .badge-text {
+    @apply text-2xs font-medium uppercase tracking-widest;
+  }
+
+  .incident-id {
+    @apply font-mono text-sm text-gray-400;
+  }
+
+  .timestamp {
+    @apply font-mono text-xs text-gray-500;
+  }
+
+  .stat-number {
+    @apply text-3xl font-bold text-gray-50 tracking-tight;
+  }
+
+  /* Surfaces */
+  .surface-sidebar {
+    @apply bg-gray-900 border-r border-subtle;
+  }
+
+  .surface-card {
+    @apply bg-gray-850 border border-subtle rounded-lg shadow-1 shadow-inset-top;
+  }
+
+  .surface-input {
+    @apply bg-gray-800 border border-base text-gray-50 rounded-md text-sm
+      focus:outline-none focus:border-focus focus:shadow-orange-glow
+      transition-colors duration-base;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply bg-orange-500 text-gray-950 font-medium text-sm px-4 py-2 rounded-md
+      hover:bg-orange-400 active:bg-orange-600 transition-colors duration-base
+      disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-800 text-gray-100 border border-base font-medium text-sm px-4 py-2 rounded-md
+      hover:bg-gray-750 transition-colors duration-base;
+  }
+
+  /* Nav */
+  .nav-link {
+    @apply block px-4 py-2 rounded-md text-sm font-medium text-gray-300
+      hover:bg-gray-800 hover:text-gray-50 transition-colors duration-base;
+  }
+
+  .nav-link-active {
+    @apply block px-4 py-2 rounded-md text-sm font-medium text-gray-50 bg-gray-800
+      border-l-2 border-orange-500 pl-[14px] transition-colors duration-base;
+  }
 }

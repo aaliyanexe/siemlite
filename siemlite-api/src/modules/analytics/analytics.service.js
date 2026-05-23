@@ -13,22 +13,23 @@ async function assetExposure() {
   return repo.assetExposure();
 }
 
+async function incidentTrends(query) {
+  const period = query.groupBy || query.period || 'daily';
+  return repo.incidentTrends(period.toLowerCase(), query.date_from, query.date_to);
+}
+
 async function slaCompliance() {
-  await incidentsRepo.refreshSlaBreachedFlags();
+  try { await incidentsRepo.refreshSlaBreachedFlags(); } catch (_) {}
   return repo.slaCompliance();
 }
 
-async function incidentTrends(query) {
-  return repo.incidentTrends(query.period || 'daily', query.date_from, query.date_to);
-}
-
 async function adminDashboard() {
-  await incidentsRepo.refreshSlaBreachedFlags();
+  try { await incidentsRepo.refreshSlaBreachedFlags(); } catch (_) {}
   return repo.adminDashboard();
 }
 
 async function analystDashboard(userId) {
-  await incidentsRepo.refreshSlaBreachedFlags();
+  try { await incidentsRepo.refreshSlaBreachedFlags(); } catch (_) {}
   return repo.analystDashboard(userId);
 }
 

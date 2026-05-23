@@ -14,7 +14,7 @@ import PageWrapper from '../components/layout/PageWrapper';
 import { useAuthStore } from '../store/authStore';
 import { getAdminDashboard, getAnalystDashboard } from '../api/analytics.api';
 
-const PIE_COLORS = ['#ef4444', '#f59e0b', '#22c55e', '#a855f7'];
+const PIE_COLORS = ['#FF3B3B', '#F0B429', '#22C55E', '#A855F7'];
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
@@ -25,9 +25,7 @@ export default function Dashboard() {
     const load = async () => {
       try {
         const res =
-          user?.role === 'Admin'
-            ? await getAdminDashboard()
-            : await getAnalystDashboard();
+          user?.role === 'Admin' ? await getAdminDashboard() : await getAnalystDashboard();
         setData(res.data);
       } finally {
         setLoading(false);
@@ -36,7 +34,13 @@ export default function Dashboard() {
     load();
   }, [user?.role]);
 
-  if (loading) return <PageWrapper title="Dashboard"><p className="text-slate-400">Loading...</p></PageWrapper>;
+  if (loading) {
+    return (
+      <PageWrapper title="Dashboard">
+        <p className="text-secondary">Loading...</p>
+      </PageWrapper>
+    );
+  }
   if (!data) return null;
 
   const isAdmin = user?.role === 'Admin';
@@ -62,27 +66,54 @@ export default function Dashboard() {
 
       {isAdmin && data.by_status && (
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-soc-panel border border-soc-border rounded-xl p-4">
-            <h3 className="text-white font-medium mb-4">By Status</h3>
+          <div className="surface-card p-4">
+            <h3 className="card-title mb-4">By Status</h3>
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={data.by_status} dataKey="total" nameKey="status" cx="50%" cy="50%" outerRadius={80} label>
+                <Pie
+                  data={data.by_status}
+                  dataKey="total"
+                  nameKey="status"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
+                >
                   {data.by_status.map((_, i) => (
                     <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1C1610',
+                    border: '1px solid #2E2418',
+                    borderRadius: 6,
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="bg-soc-panel border border-soc-border rounded-xl p-4">
-            <h3 className="text-white font-medium mb-4">Threat Frequency</h3>
+          <div className="surface-card p-4">
+            <h3 className="card-title mb-4">Threat Frequency</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={(data.threat_frequency || []).slice(0, 8)}>
-                <XAxis dataKey="threat_type" tick={{ fill: '#94a3b8', fontSize: 10 }} interval={0} angle={-25} textAnchor="end" height={60} />
-                <YAxis tick={{ fill: '#94a3b8' }} />
-                <Tooltip />
-                <Bar dataKey="total" fill="#3b82f6" />
+                <XAxis
+                  dataKey="threat_type"
+                  tick={{ fill: '#8A7060', fontSize: 10 }}
+                  interval={0}
+                  angle={-25}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis tick={{ fill: '#8A7060' }} />
+                <Tooltip
+                  contentStyle={{
+                    background: '#1C1610',
+                    border: '1px solid #2E2418',
+                    borderRadius: 6,
+                  }}
+                />
+                <Bar dataKey="total" fill="#FF4500" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -94,9 +125,11 @@ export default function Dashboard() {
 
 function StatCard({ label, value, highlight }) {
   return (
-    <div className={`rounded-xl p-4 border ${highlight ? 'border-red-500 bg-red-950/40' : 'border-soc-border bg-soc-panel'}`}>
-      <p className="text-slate-400 text-sm">{label}</p>
-      <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-red-400' : 'text-white'}`}>{value ?? 0}</p>
+    <div
+      className={`surface-card p-5 ${highlight ? 'border-severity-critical-border shadow-red-glow' : ''}`}
+    >
+      <p className="label-caps mb-2">{label}</p>
+      <p className={`stat-number ${highlight ? 'text-severity-critical' : ''}`}>{value ?? 0}</p>
     </div>
   );
 }
