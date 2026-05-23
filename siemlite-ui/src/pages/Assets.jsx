@@ -371,7 +371,7 @@ function AddAssetModal({ onClose, onAdd, nextId }) {
               backgroundColor: 'var(--accent)', border: 'none',
               borderRadius: '6px', color: '#0D0A08',
               fontSize: '13px', fontFamily: 'PP Neue Montreal, system-ui, sans-serif',
-              fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease',
+              fontWeight: 500, cursor: 'pointer', transition: 'all 150ms ease',
               display: 'flex', alignItems: 'center', gap: '6px',
             }}
             onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--accent-hover)'; e.currentTarget.style.boxShadow = '0 0 16px rgba(255,69,0,0.3)'; }}
@@ -579,17 +579,19 @@ export default function Assets() {
             onClick={() => setShowAddModal(true)}
             style={{
               height: '36px',
-              padding: '0 14px',
+              padding: '0 16px',
+              paddingRight: '25px',
               backgroundColor: 'var(--accent)',
               border: 'none',
               borderRadius: '6px',
               color: '#0D0A08',
-              fontSize: '13px',
+              fontSize: '15px',
               fontFamily: 'PP Neue Montreal, system-ui, sans-serif',
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '6px',
               transition: 'background-color 150ms ease, box-shadow 150ms ease',
               boxSizing: 'border-box',
