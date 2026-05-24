@@ -9,6 +9,7 @@ const {
   userIdSchema,
   listUsersSchema,
   resetPasswordSchema,
+  changePasswordSchema,
 } = require('./users.schemas');
 
 const router = Router();
@@ -16,22 +17,13 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/me', usersController.getMe);
+router.patch('/me/password', validate(changePasswordSchema), usersController.changePassword); // ── NEW
 
-router.get('/', requireRole('Admin'), validate(listUsersSchema), usersController.list);
-router.post('/', requireRole('Admin'), validate(createUserSchema), usersController.create);
-router.get('/:id', requireRole('Admin'), validate(userIdSchema), usersController.getById);
-router.put('/:id', requireRole('Admin'), validate(updateUserSchema), usersController.update);
-router.patch(
-  '/:id/deactivate',
-  requireRole('Admin'),
-  validate(userIdSchema),
-  usersController.deactivate
-);
-router.patch(
-  '/:id/reset-password',
-  requireRole('Admin'),
-  validate(resetPasswordSchema),
-  usersController.resetPassword
-);
+router.get('/',    requireRole('Admin'), validate(listUsersSchema),    usersController.list);
+router.post('/',   requireRole('Admin'), validate(createUserSchema),   usersController.create);
+router.get('/:id', requireRole('Admin'), validate(userIdSchema),       usersController.getById);
+router.put('/:id', requireRole('Admin'), validate(updateUserSchema),   usersController.update);
+router.patch('/:id/deactivate',    requireRole('Admin'), validate(userIdSchema),       usersController.deactivate);
+router.patch('/:id/reset-password',requireRole('Admin'), validate(resetPasswordSchema),usersController.resetPassword);
 
 module.exports = router;

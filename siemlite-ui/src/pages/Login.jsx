@@ -21,7 +21,7 @@ export default function Login() {
     try {
       const res = await login(email, password);
       setAuth(res.data.accessToken, res.data.user);
-      navigate('/dashboard');
+      navigate(res.data.user.force_pw_change ? '/change-password' : '/dashboard');
     } catch (err) {
       setError(err.response?.data?.error?.message || 'Invalid email or password');
     } finally {
