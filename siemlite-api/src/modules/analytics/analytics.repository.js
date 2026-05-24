@@ -121,7 +121,8 @@ async function incidentTrends(period = 'daily', dateFrom, dateTo) {
 
   const overTime = await query(
     `SELECT DATE_TRUNC('${trunc}', date_reported) AS period,
-            COUNT(*)::int AS total
+            COUNT(*)::int AS total,
+            COUNT(*) FILTER (WHERE status = 'Resolved')::int AS resolved
      FROM incidents
      WHERE ${conditions.join(' AND ')}
      GROUP BY period
@@ -142,13 +143,54 @@ async function incidentTrends(period = 'daily', dateFrom, dateTo) {
   return { over_time: overTime.rows, status_distribution: statusOverTime.rows };
 }
 
+// ── NEW: Incident Heatmap by hour-of-day ──────────────────────────────────────
+async function incidentHeatmap() {
+  const result = await query(
+    `SELECT EXTRACT(HOUR FROM date_reported)::int AS hour,
+            COUNT(*)::int AS total,
+            COUNT(*) FILTER (WHERE severity = 'Critical')::int AS critical,
+            COUNT(*) FILTER (WHERE severity = 'High')::int AS high
+     FROM incidents
+     WHERE is_deleted = FALSE
+     GROUP BY hour
+     ORDER BY hour ASC`
+  );
+  // Fill in missing hours with 0
+  const map = {};
+  for (const row of result.rows) map[row.hour] = row;
+  const hours = [];
+  for (let h = 0; h < 24; h++) {
+    hours.push(map[h] || { hour: h, total: 0, critical: 0, high: 0 });
+  }
+  return hours;
+}
+
 async function adminDashboard() {
   const totals = await query(
     `SELECT
        COUNT(*)::int AS total_incidents,
        COUNT(*) FILTER (WHERE status IN ('Open','Investigating','Reopened'))::int AS open_incidents,
        COUNT(*) FILTER (WHERE status IN ('Open','Investigating','Reopened') AND severity IN ('Critical','High'))::int AS critical_high_open,
-       COUNT(*) FILTER (WHERE sla_breached = TRUE AND status != 'Resolved')::int AS sla_breached_count
+       COUNT(*) FILTER (WHERE sla_breached = TRUE AND status != 'Resolved')::int AS sla_breached_count,
+       COUNT(*) FILTER (WHERE assigned_analyst_id IS NULL AND status IN ('Open','Reopened'))::int AS unassigned_count
+     FROM incidents WHERE is_deleted = FALSE`
+  );
+
+  // ── NEW: velocity — today vs yesterday ───────────────────────────────────────
+  const velocity = await query(
+    `SELECT
+       COUNT(*) FILTER (WHERE date_reported >= CURRENT_DATE)::int AS today,
+       COUNT(*) FILTER (WHERE date_reported >= CURRENT_DATE - INTERVAL '1 day'
+                          AND date_reported < CURRENT_DATE)::int AS yesterday,
+       COUNT(*) FILTER (WHERE status = 'Resolved' AND resolved_at >= CURRENT_DATE)::int AS resolved_today,
+       COUNT(*) FILTER (WHERE status = 'Resolved'
+                          AND resolved_at >= CURRENT_DATE - INTERVAL '1 day'
+                          AND resolved_at < CURRENT_DATE)::int AS resolved_yesterday,
+       COUNT(*) FILTER (WHERE sla_breached = TRUE AND status != 'Resolved'
+                          AND date_reported >= CURRENT_DATE)::int AS breached_today,
+       COUNT(*) FILTER (WHERE sla_breached = TRUE AND status != 'Resolved'
+                          AND date_reported >= CURRENT_DATE - INTERVAL '1 day'
+                          AND date_reported < CURRENT_DATE)::int AS breached_yesterday
      FROM incidents WHERE is_deleted = FALSE`
   );
 
@@ -164,6 +206,7 @@ async function adminDashboard() {
   );
 
   const threatFreq = await threatFrequencyFixed(null, null);
+
   const topAssets = await query(
     `SELECT a.asset_name, COUNT(i.incident_id)::int AS incident_count
      FROM assets a
@@ -174,7 +217,7 @@ async function adminDashboard() {
   );
 
   const workload = await query(
-    `SELECT u.name AS analyst_name,
+    `SELECT u.user_id, u.name AS analyst_name,
             COUNT(i.incident_id)::int AS open_incidents
      FROM users u
      LEFT JOIN incidents i ON i.assigned_analyst_id = u.user_id
@@ -186,12 +229,13 @@ async function adminDashboard() {
 
   const recentActivity = await query(
     `SELECT l.log_id, l.incident_id, l.action_type, l.old_value, l.new_value, l.log_time,
-            u.name AS actor_name, i.title AS incident_title
+            u.name AS actor_name, i.title AS incident_title, i.severity
      FROM incident_logs l
      LEFT JOIN users u ON l.actor_id = u.user_id
      JOIN incidents i ON l.incident_id = i.incident_id
+     WHERE i.is_deleted = FALSE
      ORDER BY l.log_time DESC
-     LIMIT 10`
+     LIMIT 20`
   );
 
   const mttr = await query(
@@ -205,6 +249,7 @@ async function adminDashboard() {
 
   return {
     totals: totals.rows[0],
+    velocity: velocity.rows[0],
     by_status: byStatus.rows,
     by_severity: bySeverity.rows,
     threat_frequency: threatFreq,
@@ -238,15 +283,40 @@ async function analystDashboard(userId) {
   const bySeverity = await query(
     `SELECT severity, COUNT(*)::int AS total FROM incidents
      WHERE assigned_analyst_id = $1 AND status IN ('Open','Investigating','Reopened') AND is_deleted = FALSE
-     GROUP BY severity`,
+     GROUP BY severity
+     ORDER BY CASE severity WHEN 'Critical' THEN 1 WHEN 'High' THEN 2 WHEN 'Medium' THEN 3 ELSE 4 END`,
+    [userId]
+  );
+
+  // ── NEW: analyst focus queue — incidents ranked by urgency score ──────────────
+  const focusQueue = await query(
+    `SELECT i.incident_id, i.title, i.severity, i.status, i.sla_deadline,
+            i.sla_breached, i.date_reported, a.asset_name, t.name AS threat_type,
+            EXTRACT(EPOCH FROM (NOW() - i.date_reported)) / 3600 AS hours_open,
+            EXTRACT(EPOCH FROM (i.sla_deadline - NOW())) / 60 AS sla_minutes_remaining,
+            (
+              CASE i.severity WHEN 'Critical' THEN 40 WHEN 'High' THEN 30 WHEN 'Medium' THEN 20 ELSE 10 END
+              + CASE WHEN i.sla_breached THEN 30 ELSE 0 END
+              + CASE WHEN EXTRACT(EPOCH FROM (i.sla_deadline - NOW())) / 3600 < 2 THEN 20 ELSE 0 END
+              + LEAST(EXTRACT(EPOCH FROM (NOW() - i.date_reported)) / 3600, 10)::int
+            ) AS urgency_score
+     FROM incidents i
+     JOIN assets a ON i.asset_id = a.asset_id
+     JOIN threat_types t ON i.threat_type_id = t.threat_type_id
+     WHERE i.assigned_analyst_id = $1
+       AND i.status IN ('Open','Investigating','Reopened')
+       AND i.is_deleted = FALSE
+     ORDER BY urgency_score DESC
+     LIMIT 10`,
     [userId]
   );
 
   const recentActivity = await query(
-    `SELECT l.log_id, l.incident_id, l.action_type, l.log_time, i.title AS incident_title
+    `SELECT l.log_id, l.incident_id, l.action_type, l.log_time,
+            i.title AS incident_title, i.severity
      FROM incident_logs l
      JOIN incidents i ON l.incident_id = i.incident_id
-     WHERE i.assigned_analyst_id = $1
+     WHERE i.assigned_analyst_id = $1 AND i.is_deleted = FALSE
      ORDER BY l.log_time DESC
      LIMIT 10`,
     [userId]
@@ -257,6 +327,7 @@ async function analystDashboard(userId) {
     my_sla_breached: slaBreached.rows[0].count,
     my_resolved_this_month: resolvedMonth.rows[0].count,
     by_severity: bySeverity.rows,
+    focus_queue: focusQueue.rows,
     recent_activity: recentActivity.rows,
   };
 }
@@ -267,6 +338,7 @@ module.exports = {
   assetExposure,
   slaCompliance,
   incidentTrends,
+  incidentHeatmap,
   adminDashboard,
   analystDashboard,
 };

@@ -31,18 +31,18 @@ export default function App() {
           }
         />
         <Route
-          path="/incidents/:id"
-          element={
-            <ProtectedRoute>
-              <IncidentDetail />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/incidents/new"
           element={
             <ProtectedRoute>
               <Placeholder title="Report Incident" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/incidents/:id"
+          element={
+            <ProtectedRoute>
+              <IncidentDetail />
             </ProtectedRoute>
           }
         />

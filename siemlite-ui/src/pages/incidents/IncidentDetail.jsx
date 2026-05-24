@@ -328,7 +328,7 @@ function ResolveForm({ incidentId, onResolved, onCancel }) {
 
   return (
     <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 6, padding: 14, marginBottom: 12 }}>
-      <p style={{ fontSize: 12, fontWeight: 600, color: '#22c55e', marginBottom: 10 }}>Resolve Incident</p>
+      <p style={{ fontSize: 12, fontWeight: 500, color: '#22c55e', marginBottom: 10 }}>Resolve Incident</p>
       {error && <p style={{ fontSize: 11, color: '#ef4444', marginBottom: 8 }}>{error}</p>}
       <textarea
         value={summary}
@@ -719,13 +719,11 @@ export default function IncidentDetail() {
             </div>
             {isAdmin && (
               <button onClick={() => setShowDeleteModal(true)} style={{
-                padding: '6px 14px', background: 'transparent',
-                border: '1px solid var(--border-default)', borderRadius: 6,
-                color: '#ef4444', fontSize: 12, cursor: 'pointer',
-                fontFamily: 'inherit', flexShrink: 0, transition: 'border-color 0.15s',
+                padding: '6px 14px', background: '#ef4444',
+                border: 'none', borderRadius: 6,
+                color: '#111', fontSize: 12, cursor: 'pointer',
+                fontFamily: 'inherit', flexShrink: 0, fontWeight: 500,
               }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#ef4444'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-default)'}
               >
                 Delete
               </button>

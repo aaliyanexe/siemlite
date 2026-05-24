@@ -30,6 +30,11 @@ module.exports = {
     const data = await service.incidentTrends(req.query);
     return success(res, data, 'Incident trends report');
   }),
+  // ── NEW ──
+  incidentHeatmap: wrap(async (req, res) => {
+    const data = await service.incidentHeatmap();
+    return success(res, data, 'Incident heatmap');
+  }),
   adminDashboard: wrap(async (req, res) => {
     const data = await service.adminDashboard();
     return success(res, data, 'Admin dashboard');

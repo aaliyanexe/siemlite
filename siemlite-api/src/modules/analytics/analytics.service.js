@@ -37,6 +37,11 @@ async function slaCompliance(query) {
   return repo.slaCompliance();
 }
 
+// ── NEW ──
+async function incidentHeatmap() {
+  return repo.incidentHeatmap();
+}
+
 async function adminDashboard() {
   try { await incidentsRepo.refreshSlaBreachedFlags(); } catch (_) {}
   return repo.adminDashboard();
@@ -53,6 +58,7 @@ module.exports = {
   assetExposure,
   slaCompliance,
   incidentTrends,
+  incidentHeatmap,
   adminDashboard,
   analystDashboard,
 };
