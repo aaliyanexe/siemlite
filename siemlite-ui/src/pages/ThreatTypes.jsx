@@ -85,7 +85,6 @@ function ThreatTypeCard({ tt, isAdmin, onEdit, onDeactivate }) {
       style={{
         background: 'var(--bg-surface)',
         border: '1px solid var(--border-subtle)',
-        borderLeft: `1.5px solid ${sev.border}70`,
         borderRadius: 8,
         padding: '16px 18px',
         opacity: tt.is_active ? 1 : 0.45,
@@ -361,7 +360,7 @@ function ThreatTypeDrawer({ open, onClose, onSave, initial, loading }) {
 
         {/* header */}
         <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)' }}>
+          <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
             {isEdit ? 'Edit Threat Type' : 'New Threat Type'}
           </p>
           <button

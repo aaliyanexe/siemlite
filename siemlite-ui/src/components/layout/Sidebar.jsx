@@ -90,12 +90,16 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="shrink-0 min-h-screen flex flex-col"
-      style={{
-        width: 'var(--sidebar-width)',
-        backgroundColor: 'var(--bg-surface)',
-        borderRight: '1px solid var(--border-subtle)',
-      }}
+    className="shrink-0 flex flex-col"
+    style={{
+      width: 'var(--sidebar-width)',
+      height: '100vh',
+      position: 'sticky',
+      top: 0,
+      backgroundColor: 'var(--bg-surface)',
+      borderRight: '1px solid var(--border-subtle)',
+      overflowY: 'auto',
+    }}
     >
       {/* ── Logo ─────────────────────────────── */}
       <div

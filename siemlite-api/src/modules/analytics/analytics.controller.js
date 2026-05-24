@@ -15,15 +15,15 @@ module.exports = {
     return success(res, data, 'Threat frequency report');
   }),
   analystWorkload: wrap(async (req, res) => {
-    const data = await service.analystWorkload();
+    const data = await service.analystWorkload(req.query);
     return success(res, data, 'Analyst workload report');
   }),
   assetExposure: wrap(async (req, res) => {
-    const data = await service.assetExposure();
+    const data = await service.assetExposure(req.query);
     return success(res, data, 'Asset exposure report');
   }),
   slaCompliance: wrap(async (req, res) => {
-    const data = await service.slaCompliance();
+    const data = await service.slaCompliance(req.query);
     return success(res, data, 'SLA compliance report');
   }),
   incidentTrends: wrap(async (req, res) => {
