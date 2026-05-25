@@ -530,7 +530,7 @@ export default function Analytics() {
               ))}
             </div>
 
-            <button onClick={exportToPDF} style={{
+          <button onClick={exportToPDF} style={{
             height: 36, padding: '0 12px',
             background: T.bgAccent,
             border: `1px solid ${T.borderDefault}`,
@@ -714,7 +714,7 @@ export default function Analytics() {
                       Overall compliance
                     </p>
                     <p style={{ fontSize: 11, color: T.textTertiary, marginTop: 2, fontFamily: "'PP Neue Montreal Mono', monospace" }}>
-                      {(sla.by_severity || []).reduce((s, r) => s + (r.within_sla || 0), 0)} resolved · {(sla.breached_incidents || []).length} breached
+                      {(sla.by_severity || []).reduce((s, r) => s + (r.within_sla || 0), 0)} resolved within SLA · {(sla.breached_incidents || []).length} currently overdue
                     </p>
                   </div>
                 </div>

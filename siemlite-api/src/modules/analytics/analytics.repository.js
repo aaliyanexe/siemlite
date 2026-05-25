@@ -85,8 +85,8 @@ async function assetExposure() {
 async function slaCompliance() {
   const bySeverity = await query(
     `SELECT severity,
-            COUNT(*)::int AS total,
-            COUNT(*) FILTER (WHERE status = 'Resolved' AND (resolved_at <= sla_deadline OR sla_breached = FALSE))::int AS within_sla,
+            COUNT(*) FILTER (WHERE status = 'Resolved')::int AS total,
+            COUNT(*) FILTER (WHERE status = 'Resolved' AND resolved_at <= sla_deadline)::int AS within_sla,
             ROUND(100.0 * COUNT(*) FILTER (WHERE status = 'Resolved' AND resolved_at <= sla_deadline) /
               NULLIF(COUNT(*) FILTER (WHERE status = 'Resolved'), 0), 1) AS compliance_pct
      FROM incidents

@@ -21,10 +21,12 @@ export default function ChangePassword() {
     setError('');
     if (next !== confirm) { setError('New passwords do not match'); return; }
     if (next.length < 8)  { setError('Password must be at least 8 characters'); return; }
+    
     setLoading(true);
     try {
-      await changeMyPassword(current, next);
-      // update user in store — force_pw_change is now false
+      // Ensure keys match backend auth.controller.js expectations exactly
+      await changeMyPassword(current, next); 
+      
       setAuth(accessToken, { ...user, force_pw_change: false });
       navigate('/dashboard', { replace: true });
     } catch (err) {

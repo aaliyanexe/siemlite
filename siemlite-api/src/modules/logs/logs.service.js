@@ -3,16 +3,20 @@ const { parsePagination, buildPaginationMeta } = require('../../utils/pagination
 
 async function listSystemLogs(query) {
   const { page, limit, offset } = parsePagination(query);
+
   const { rows, total } = await logsRepo.findAll(
     {
-      actor_id: query.actor_id,
+      actor_id:    query.actor_id,
       action_type: query.action_type,
-      date_from: query.date_from,
-      date_to: query.date_to,
+      incident_id: query.incident_id,  // new
+      severity:    query.severity,     // new
+      date_from:   query.date_from,
+      date_to:     query.date_to,
     },
     limit,
     offset
   );
+
   return { logs: rows, pagination: buildPaginationMeta(page, limit, total) };
 }
 

@@ -19,16 +19,26 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      const res = await login(email, password);
-      setAuth(res.data.accessToken, res.data.user);
-      navigate(res.data.user.force_pw_change ? '/change-password' : '/dashboard');
+      const res = await login(email, password); 
+      
+      // The backend response format is { success: true, data: { accessToken, user } }
+      // Access 'res.data' directly
+      const { accessToken, user } = res.data; 
+  
+      setAuth(accessToken, user);
+      
+      // Redirect based on the actual flag in the user object
+      navigate(user.force_pw_change ? '/change-password' : '/dashboard', { replace: true });
     } catch (err) {
+      console.error("Login catch error:", err);
+      // Use optional chaining to safely access the error message
       setError(err.response?.data?.error?.message || 'Invalid email or password');
     } finally {
       setLoading(false);
     }
   };
 
+  
   const inputBase = (field) => ({
     width: '100%',
     height: 48,

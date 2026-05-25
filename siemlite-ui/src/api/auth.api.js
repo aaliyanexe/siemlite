@@ -7,5 +7,7 @@ export const logout = () =>
   api.post('/auth/logout').then(r => r.data);
 
 // ── NEW ──────────────────────────────────────────────────────────────────────
-export const changeMyPassword = (current_password, new_password) =>
-  api.patch('/users/me/password', { current_password, new_password }).then(r => r.data);
+// src/api/auth.api.js
+export const changeMyPassword = (currentPassword, newPassword) =>
+  // POST to match the auth.routes.js requirement
+  api.post('/auth/change-password', { currentPassword, newPassword }).then(r => r.data);
