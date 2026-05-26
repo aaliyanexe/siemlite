@@ -649,7 +649,7 @@ export default function Users() {
         <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 8, overflow: 'hidden' }}>
 
           {/* Header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 100px 120px 130px', padding: '0 20px', height: 40, alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 100px 120px 130px 130px', padding: '0 20px', height: 40, alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-elevated)' }}>
             {['User', 'Role', 'Status', 'Incidents', 'Availability', 'Last Login', 'Actions'].map(col => (
               <span key={col} style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-tertiary)', fontFamily: 'PP Neue Montreal, system-ui, sans-serif' }}>{col}</span>
             ))}
@@ -668,7 +668,7 @@ export default function Users() {
               return (
                 <div key={u.user_id}>
                   <div style={{
-                    display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 80px 100px 120px 130px',
+                    display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 100px 120px 130px 130px',
                     padding: '0 20px', minHeight: 56, alignItems: 'center',
                     borderBottom: (!isExpanded && i < filtered.length - 1) ? '1px solid var(--border-subtle)' : 'none',
                     background: isExpanded ? 'var(--bg-elevated)' : 'transparent',
